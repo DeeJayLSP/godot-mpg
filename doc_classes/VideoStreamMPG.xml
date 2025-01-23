@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="VideoStreamMPG" inherits="VideoStream" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../doc/class.xsd">
+	<brief_description>
+		[VideoStream] resource for MPEG-1 videos.
+	</brief_description>
+	<description>
+		[VideoStream] resource handling the MPEG-1 video format with [code].mpg[/code] extension. The MPEG-1 codec is decoded on the CPU.
+		[b]Note:[/b] The decoders expects [code].mpg[/code] files to have a MPEG-1 video stream and a MPEG-1 Audio Layer II audio stream. Other types can't be decoded.
+	</description>
+	<tutorials>
+	</tutorials>
+</class>
