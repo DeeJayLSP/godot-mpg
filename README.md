@@ -2,8 +2,10 @@
 
 A module that adds MPEG-1 video support to Godot.
 
+This was originally part of a proposal to replace Godot's built-in Theora decoder due to bugs. However, fixes were found, so I just released as a separate module instead.
+
 ## Usage
-Toss a `.mpg` file into a VideoStreamPlayer and it should just work. All decoding is done on CPU.
+Place a `.mpg` file into a VideoStreamPlayer and it should just work. All decoding is done on CPU.
 
 Note that video and audio streams should be MPEG-1 Video and MPEG-1 Audio Layer II, respectively.
 
