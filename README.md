@@ -1,3 +1,5 @@
+<img src="https://github.com/DeeJayLSP/godot-mpg/raw/master/editor/icons/VideoStreamMPG.svg" alt="VideoStreamMPG.svg" width=94/>
+
 # Godot MPG
 
 A module that adds MPEG-1 video support to Godot.
