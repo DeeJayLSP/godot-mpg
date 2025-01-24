@@ -1067,6 +1067,7 @@ void plm_rewind(plm_t *self) {
 
 	plm_demux_rewind(self->demux);
 	self->time = 0;
+	self->has_ended = FALSE;
 }
 
 int plm_get_loop(plm_t *self) {
@@ -4134,12 +4135,12 @@ void plm_audio_decode_frame(plm_audio_t *self) {
 							? self->samples.left
 							: self->samples.right;
 						for (int j = 0; j < 32; j++) {
-							out_channel[out_pos + j] = self->U[j] / 1090519040.0f;
+							out_channel[out_pos + j] = self->U[j] / -1090519040.0f;
 						}
 					#else
 						for (int j = 0; j < 32; j++) {
 							self->samples.interleaved[((out_pos + j) << 1) + ch] = 
-								self->U[j] / 1090519040.0f;
+								self->U[j] / -1090519040.0f;
 						}
 					#endif
 				} // End of synthesis channel loop
