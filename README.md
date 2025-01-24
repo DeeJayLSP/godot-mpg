@@ -20,3 +20,4 @@ This module uses the [PL_MPEG](https://github.com/phoboslab/pl_mpeg) library by 
 
 ## Known issues
 - Unlike Godot's built-in Theora decoder, this one reads data from a copy in memory instead of the file.
+- Performance issues.
