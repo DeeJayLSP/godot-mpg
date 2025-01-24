@@ -78,8 +78,10 @@ void VideoStreamPlaybackMPG::set_file(const String &p_file) {
 	size.x = plm_get_width(mpeg);
 	size.y = plm_get_height(mpeg);
 
-	Ref<Image> img = Image::create_empty(size.x, size.y, false, Image::FORMAT_RGBA8);
-	texture->set_image(img);
+	if (texture->get_image().is_null()) {
+		Ref<Image> img = Image::create_empty(size.x, size.y, false, Image::FORMAT_RGBA8);
+		texture->set_image(img);
+	}
 
 	length = plm_get_duration(mpeg);
 
