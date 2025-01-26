@@ -13,26 +13,27 @@ class VideoStreamPlaybackMPG : public VideoStreamPlayback {
 	GDCLASS(VideoStreamPlaybackMPG, VideoStreamPlayback);
 
 	plm_t *mpeg = nullptr;
-	plm_frame_t *frame_current = nullptr;
 
 	Ref<FileAccess> file;
 	String file_name;
-	LocalVector<uint8_t> file_data;  // HACK: remove once a proper plm_buffer_t with FileAccess is done
+	LocalVector<uint8_t> file_data; // HACK: remove once a proper plm_buffer_t with FileAccess is done
 	Ref<ImageTexture> texture;
 	Vector<uint8_t> frame_data; // Image creation has a big overhead converting from LocalVector
 	Point2i size;
 
+	plm_frame_t *frame_current = nullptr;
 	bool frame_pending = false;
 
-	static void buffer_data(plm_buffer_t *buf, void *user);
-	static void video_write(plm_t *self, plm_frame_t *frame, void *user);
-	static void audio_write(plm_t *self, plm_samples_t *samples, void *user);
+	static void dummy_yuv2rgb();
+	static void load_callback(plm_buffer_t *buf, void *user);
+	static void video_callback(plm_t *self, plm_frame_t *frame, void *user);
+	static void audio_callback(plm_t *self, plm_samples_t *samples, void *user);
 
 	int delay_compensation = 0;
 
 	bool playing = false;
 	bool paused = false;
-	
+
 	double length = 0;
 	double time = 0;
 	int channels = 0;

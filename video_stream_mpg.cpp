@@ -11,8 +11,13 @@
 
 #include "thirdparty/misc/yuv2rgb.h"
 
-void VideoStreamPlaybackMPG::buffer_data(plm_buffer_t *buf, void *user) { // TODO: fix this and use custom buffer
-	PLM_UNUSED(user);
+void VideoStreamPlaybackMPG::dummy_yuv2rgb() {
+	// MPEG-1 only supports 4:2:0, these are here to prevent werror from yelling
+	yuv444_2_rgb8888(nullptr, nullptr, nullptr, nullptr, 0, 0, 0, 0, 0);
+	yuv422_2_rgb8888(nullptr, nullptr, nullptr, nullptr, 0, 0, 0, 0, 0);
+}
+
+void VideoStreamPlaybackMPG::load_callback(plm_buffer_t *buf, void *user) { // TODO: fix this and use custom buffer
 	Ref<FileAccess> fa = *(Ref<FileAccess> *)buf->load_callback_user_data;
 
 	if (buf->discard_read_bytes) {
@@ -28,17 +33,14 @@ void VideoStreamPlaybackMPG::buffer_data(plm_buffer_t *buf, void *user) { // TOD
 	}
 }
 
-void VideoStreamPlaybackMPG::video_write(plm_t *self, plm_frame_t *frame, void *user) {
-	PLM_UNUSED(user);
-	VideoStreamPlaybackMPG *ps = (VideoStreamPlaybackMPG *)self->video_decode_callback_user_data;
+void VideoStreamPlaybackMPG::video_callback(plm_t *self, plm_frame_t *frame, void *user) {
+	VideoStreamPlaybackMPG *ps = (VideoStreamPlaybackMPG *)user;
 	ps->frame_current = frame;
 	ps->frame_pending = true;
 }
 
-void VideoStreamPlaybackMPG::audio_write(plm_t *self, plm_samples_t *samples, void *user) {
-	PLM_UNUSED(user);
-	VideoStreamPlaybackMPG *ps = (VideoStreamPlaybackMPG *)self->audio_decode_callback_user_data;
-
+void VideoStreamPlaybackMPG::audio_callback(plm_t *self, plm_samples_t *samples, void *user) {
+	VideoStreamPlaybackMPG *ps = (VideoStreamPlaybackMPG *)user;
 	if (ps->mix_callback) {
 		ps->mix_callback(ps->mix_udata, samples->interleaved, samples->count);
 	}
@@ -64,8 +66,8 @@ void VideoStreamPlaybackMPG::set_file(const String &p_file) {
 	file->close();
 	mpeg = plm_create_with_memory(file_data.ptr(), file_data.size(), FALSE);
 
-	plm_set_video_decode_callback(mpeg, video_write, this);
-	plm_set_audio_decode_callback(mpeg, audio_write, this);
+	plm_set_video_decode_callback(mpeg, video_callback, this);
+	plm_set_audio_decode_callback(mpeg, audio_callback, this);
 
 	if (plm_get_num_audio_streams(mpeg) > 0) {
 		plm_set_audio_stream(mpeg, audio_track);
@@ -163,15 +165,9 @@ void VideoStreamPlaybackMPG::update(double p_delta) {
 
 	plm_decode(mpeg, p_delta);
 
-	if (frame_pending) {
+	if (frame_pending) { // Write frame to texture
 		frame_data.resize((size.x * size.y) << 2);
 		yuv420_2_rgb8888(frame_data.ptrw(), frame_current->y.data, frame_current->cb.data, frame_current->cr.data, size.x, size.y, size.x, size.x >> 1, size.x << 2);
-
-		if (false) { // MPEG-1 only supports 4:2:0, these are here to prevent werror from yelling
-			yuv444_2_rgb8888(nullptr, nullptr, nullptr, nullptr, 0, 0, 0, 0, 0);
-			yuv422_2_rgb8888(nullptr, nullptr, nullptr, nullptr, 0, 0, 0, 0, 0);
-		}
-
 		Ref<Image> img = memnew(Image(size.x, size.y, false, Image::FORMAT_RGBA8, frame_data));
 		texture->update(img);
 
