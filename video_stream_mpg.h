@@ -19,7 +19,6 @@ class VideoStreamPlaybackMPG : public VideoStreamPlayback {
 	LocalVector<uint8_t> file_data; // HACK: remove once a proper plm_buffer_t with FileAccess is done
 	Ref<ImageTexture> texture;
 	Vector<uint8_t> frame_data; // Image creation has a big overhead converting from LocalVector
-	Point2i size;
 
 	plm_frame_t *frame_current = nullptr;
 	bool frame_pending = false;
@@ -31,12 +30,6 @@ class VideoStreamPlaybackMPG : public VideoStreamPlayback {
 
 	bool playing = false;
 	bool paused = false;
-
-	double length = 0;
-	double time = 0;
-	int channels = 0;
-	int mix_rate = 0;
-	int audio_track = 0;
 
 protected:
 	void clear();
@@ -77,8 +70,8 @@ protected:
 public:
 	Ref<VideoStreamPlayback> instantiate_playback() override {
 		Ref<VideoStreamPlaybackMPG> pb = memnew(VideoStreamPlaybackMPG);
-		pb->set_audio_track(audio_track);
 		pb->set_file(file);
+		pb->set_audio_track(audio_track);
 		return pb;
 	}
 

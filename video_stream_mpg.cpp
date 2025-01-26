@@ -69,23 +69,12 @@ void VideoStreamPlaybackMPG::set_file(const String &p_file) {
 	plm_set_video_decode_callback(mpeg, video_callback, this);
 	plm_set_audio_decode_callback(mpeg, audio_callback, this);
 
-	if (plm_get_num_audio_streams(mpeg) > 0) {
-		plm_set_audio_stream(mpeg, audio_track);
-		channels = mpeg->audio_buffer->mode == PLM_AUDIO_MODE_MONO ? 1 : 2;
-		mix_rate = plm_get_samplerate(mpeg);
-	} else {
-		plm_set_audio_enabled(mpeg, FALSE);
-	}
+	int x = plm_get_width(mpeg);
+	int y = plm_get_height(mpeg);
 
-	size.x = plm_get_width(mpeg);
-	size.y = plm_get_height(mpeg);
-
-	Ref<Image> img = Image::create_empty(size.x, size.y, false, Image::FORMAT_RGBA8);
+	Ref<Image> img = Image::create_empty(x, y, false, Image::FORMAT_RGBA8);
 	texture->set_image(img);
 
-	length = plm_get_duration(mpeg);
-
-	time = 0;
 	playing = false;
 }
 
@@ -105,9 +94,7 @@ void VideoStreamPlaybackMPG::clear() {
 }
 
 void VideoStreamPlaybackMPG::play() {
-	if (!playing) {
-		time = 0;
-	} else {
+	if (playing) {
 		stop();
 	}
 
@@ -121,7 +108,6 @@ void VideoStreamPlaybackMPG::stop() {
 		set_file(file_name);
 	}
 	playing = false;
-	time = 0;
 }
 
 bool VideoStreamPlaybackMPG::is_playing() const {
@@ -137,11 +123,11 @@ bool VideoStreamPlaybackMPG::is_paused() const {
 }
 
 double VideoStreamPlaybackMPG::get_length() const {
-	return 0;
+	return plm_get_duration(mpeg);
 }
 
 double VideoStreamPlaybackMPG::get_playback_position() const {
-	return time - plm_get_audio_lead_time(mpeg);
+	return plm_get_time(mpeg) - plm_get_audio_lead_time(mpeg);
 }
 
 void VideoStreamPlaybackMPG::seek(double p_time) {
@@ -160,14 +146,15 @@ void VideoStreamPlaybackMPG::update(double p_delta) {
 	if (!playing || paused) {
 		return;
 	}
-	time += p_delta;
 
 	plm_decode(mpeg, p_delta);
 
 	if (frame_pending) { // Write frame to texture
-		frame_data.resize((size.x * size.y) << 2);
-		yuv420_2_rgb8888(frame_data.ptrw(), frame_current->y.data, frame_current->cb.data, frame_current->cr.data, size.x, size.y, size.x, size.x >> 1, size.x << 2);
-		Ref<Image> img = memnew(Image(size.x, size.y, false, Image::FORMAT_RGBA8, frame_data));
+		int x = frame_current->width;
+		int y = frame_current->height;
+		frame_data.resize((x * y) << 2);
+		yuv420_2_rgb8888(frame_data.ptrw(), frame_current->y.data, frame_current->cb.data, frame_current->cr.data, x, y, x, x >> 1, x << 2);
+		Ref<Image> img = memnew(Image(x, y, false, Image::FORMAT_RGBA8, frame_data));
 		texture->update(img);
 
 		frame_pending = false;
@@ -179,15 +166,15 @@ void VideoStreamPlaybackMPG::update(double p_delta) {
 }
 
 int VideoStreamPlaybackMPG::get_channels() const {
-	return channels;
+	return mpeg->audio_buffer->mode == PLM_AUDIO_MODE_MONO ? 1 : 2;
 }
 
 int VideoStreamPlaybackMPG::get_mix_rate() const {
-	return mix_rate;
+	return plm_get_samplerate(mpeg);
 }
 
 void VideoStreamPlaybackMPG::set_audio_track(int p_track) {
-	audio_track = p_track;
+	plm_set_audio_stream(mpeg, p_track);
 }
 
 VideoStreamPlaybackMPG::VideoStreamPlaybackMPG() {
