@@ -112,8 +112,7 @@ void VideoStreamPlaybackMPG::play() {
 	}
 
 	playing = true;
-	delay_compensation = GLOBAL_GET("audio/video/video_delay_compensation_ms");
-	delay_compensation /= 1000.0;
+	plm_set_audio_lead_time(mpeg, (double)GLOBAL_GET("audio/video/video_delay_compensation_ms") / 1000.0);
 }
 
 void VideoStreamPlaybackMPG::stop() {
@@ -142,7 +141,7 @@ double VideoStreamPlaybackMPG::get_length() const {
 }
 
 double VideoStreamPlaybackMPG::get_playback_position() const {
-	return time - delay_compensation;
+	return time - plm_get_audio_lead_time(mpeg);
 }
 
 void VideoStreamPlaybackMPG::seek(double p_time) {

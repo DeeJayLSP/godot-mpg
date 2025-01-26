@@ -29,8 +29,6 @@ class VideoStreamPlaybackMPG : public VideoStreamPlayback {
 	static void video_callback(plm_t *self, plm_frame_t *frame, void *user);
 	static void audio_callback(plm_t *self, plm_samples_t *samples, void *user);
 
-	int delay_compensation = 0;
-
 	bool playing = false;
 	bool paused = false;
 
