@@ -14,6 +14,8 @@ Note that video and audio streams should be MPEG-1 Video and MPEG-1 Audio Layer 
 ## Building
 Clone the repository into `modules/` under the name "mpg". Then proceed to build the engine as per the usual instructions.
 
+In my own tests, this module seems to have a weight of 72 KB in a production template release binary. At least this is still better than Theora's 104 KB penalty.
+
 ## Third-party
 This module uses the [PL_MPEG](https://github.com/phoboslab/pl_mpeg) library by Dominic Szablewski with a few patches.
 
