@@ -53,18 +53,10 @@ void VideoStreamPlaybackMPG::set_file(const String &p_file) {
 	file = FileAccess::open(p_file, FileAccess::READ);
 	ERR_FAIL_COND_MSG(file.is_null(), "Cannot open file: " + p_file);
 
-	// TODO: Custom plm_buffer_t using FileAccess. Not working properly yet.
-	// plm_buffer_t *buffer = plm_buffer_create_with_capacity(PLM_BUFFER_DEFAULT_SIZE);
-	// buffer->total_size = file->get_length();
-	// plm_buffer_set_load_callback(buffer, buffer_data, &file);
-	// mpeg = plm_create_with_buffer(buffer, TRUE);
-
-	// HACK: Temporarily create with memory instead.
-	const uint64_t len = file->get_length();
-	file_data.resize(len);
-	file->get_buffer(file_data.ptr(), len);
-	file->close();
-	mpeg = plm_create_with_memory(file_data.ptr(), file_data.size(), FALSE);
+	plm_buffer_t *buffer = plm_buffer_create_with_capacity(PLM_BUFFER_DEFAULT_SIZE);
+	buffer->total_size = file->get_length();
+	plm_buffer_set_load_callback(buffer, load_callback, &file);
+	mpeg = plm_create_with_buffer(buffer, TRUE);
 
 	plm_set_video_decode_callback(mpeg, video_callback, this);
 	plm_set_audio_decode_callback(mpeg, audio_callback, this);
@@ -86,8 +78,6 @@ void VideoStreamPlaybackMPG::clear() {
 	if (mpeg) {
 		plm_destroy(mpeg);
 	}
-
-	file_data.clear();
 
 	file.unref();
 	playing = false;

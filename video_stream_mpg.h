@@ -16,7 +16,6 @@ class VideoStreamPlaybackMPG : public VideoStreamPlayback {
 
 	Ref<FileAccess> file;
 	String file_name;
-	LocalVector<uint8_t> file_data; // HACK: remove once a proper plm_buffer_t with FileAccess is done
 	Ref<ImageTexture> texture;
 	Vector<uint8_t> frame_data; // Image creation has a big overhead converting from LocalVector
 

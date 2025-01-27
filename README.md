@@ -20,5 +20,5 @@ In my own tests, this module seems to have a weight of 72 KB in a production tem
 This module uses the [PL_MPEG](https://github.com/phoboslab/pl_mpeg) library by Dominic Szablewski with a few patches.
 
 ## Known issues
-- Unlike Godot's built-in Theora decoder, this one reads data from a copy in memory instead of the file (help wanted I guess).
-- Performance issues. Theora is still faster despite its bugs. Proposed PL_MPEG optimizations might fix this.
+- A blank frame can be seen when looping.
+- Performance issues. Theora is still faster despite its bugs. Proposed optimizations in PL_MPEG might fix this.
