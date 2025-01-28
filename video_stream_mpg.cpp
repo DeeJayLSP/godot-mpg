@@ -17,7 +17,7 @@ void VideoStreamPlaybackMPG::dummy_yuv2rgb() {
 	yuv422_2_rgb8888(nullptr, nullptr, nullptr, nullptr, 0, 0, 0, 0, 0);
 }
 
-void VideoStreamPlaybackMPG::load_callback(plm_buffer_t *buf, void *user) { // TODO: fix this and use custom buffer
+void VideoStreamPlaybackMPG::load_callback(plm_buffer_t *buf, void *user) {
 	Ref<FileAccess> fa = *(Ref<FileAccess> *)buf->load_callback_user_data;
 
 	if (buf->discard_read_bytes) {
