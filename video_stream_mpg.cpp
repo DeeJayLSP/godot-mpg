@@ -117,7 +117,7 @@ double VideoStreamPlaybackMPG::get_length() const {
 }
 
 double VideoStreamPlaybackMPG::get_playback_position() const {
-	return playing ? plm_get_time(mpeg) - plm_get_audio_lead_time(mpeg) : 0.0;
+	return mpeg != nullptr ? plm_get_time(mpeg) - plm_get_audio_lead_time(mpeg) : 0.0;
 }
 
 void VideoStreamPlaybackMPG::seek(double p_time) {
