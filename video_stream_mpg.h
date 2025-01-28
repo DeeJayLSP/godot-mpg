@@ -67,16 +67,8 @@ protected:
 	static void _bind_methods();
 
 public:
-	Ref<VideoStreamPlayback> instantiate_playback() override {
-		Ref<VideoStreamPlaybackMPG> pb = memnew(VideoStreamPlaybackMPG);
-		pb->set_file(file);
-		pb->set_audio_track(audio_track);
-		return pb;
-	}
-
-	void set_audio_track(int p_track) override { audio_track = p_track; }
-
-	VideoStreamMPG() { audio_track = 0; }
+	Ref<VideoStreamPlayback> instantiate_playback() override;
+	void set_audio_track(int p_track) override;
 };
 
 class ResourceFormatLoaderMPG : public ResourceFormatLoader {

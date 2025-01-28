@@ -179,24 +179,25 @@ VideoStreamPlaybackMPG::~VideoStreamPlaybackMPG() {
 
 void VideoStreamMPG::_bind_methods() {}
 
+Ref<VideoStreamPlayback> VideoStreamMPG::instantiate_playback() {
+	Ref<VideoStreamPlaybackMPG> pb;
+	pb.instantiate();
+	pb->set_file(file);
+	pb->set_audio_track(audio_track);
+	return pb;
+}
+
+void VideoStreamMPG::set_audio_track(int p_track) {
+	audio_track = p_track;
+}
+
 Ref<Resource> ResourceFormatLoaderMPG::load(const String &p_path, const String &p_original_path, Error *r_error, bool p_use_sub_threads, float *r_progress, CacheMode p_cache_mode) {
-	Ref<FileAccess> f = FileAccess::open(p_path, FileAccess::READ);
-	if (f.is_null()) {
-		if (r_error) {
-			*r_error = ERR_CANT_OPEN;
-		}
-		return Ref<Resource>();
-	}
+	Ref<FileAccess> f = FileAccess::open(p_path, FileAccess::READ, r_error);
+	ERR_FAIL_COND_V_MSG(f.is_null(), Ref<Resource>(), "Cannot open file '" + p_path + "'.");
 
-	VideoStreamMPG *stream = memnew(VideoStreamMPG);
-	stream->set_file(p_path);
-
-	Ref<VideoStreamMPG> mpg_stream = Ref<VideoStreamMPG>(stream);
-
-	if (r_error) {
-		*r_error = OK;
-	}
-
+	Ref<VideoStreamMPG> mpg_stream;
+	mpg_stream.instantiate();
+	mpg_stream->set_file(p_path);
 	return mpg_stream;
 }
 
