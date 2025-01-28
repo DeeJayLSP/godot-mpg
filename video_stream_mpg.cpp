@@ -18,7 +18,7 @@ void VideoStreamPlaybackMPG::dummy_yuv2rgb() {
 }
 
 void VideoStreamPlaybackMPG::load_callback(plm_buffer_t *buf, void *user) {
-	Ref<FileAccess> fa = *(Ref<FileAccess> *)buf->load_callback_user_data;
+	Ref<FileAccess> fa = *(Ref<FileAccess> *)user;
 
 	if (buf->discard_read_bytes) {
 		plm_buffer_discard_read_bytes(buf);
@@ -113,11 +113,11 @@ bool VideoStreamPlaybackMPG::is_paused() const {
 }
 
 double VideoStreamPlaybackMPG::get_length() const {
-	return plm_get_duration(mpeg);
+	return mpeg != nullptr ? plm_get_duration(mpeg) : 0.0;
 }
 
 double VideoStreamPlaybackMPG::get_playback_position() const {
-	return plm_get_time(mpeg) - plm_get_audio_lead_time(mpeg);
+	return playing ? plm_get_time(mpeg) - plm_get_audio_lead_time(mpeg) : 0.0;
 }
 
 void VideoStreamPlaybackMPG::seek(double p_time) {
@@ -133,7 +133,7 @@ void VideoStreamPlaybackMPG::update(double p_delta) {
 		return;
 	}
 
-	if (!playing || paused) {
+	if (!playing || paused || mpeg == nullptr) {
 		return;
 	}
 
@@ -156,15 +156,17 @@ void VideoStreamPlaybackMPG::update(double p_delta) {
 }
 
 int VideoStreamPlaybackMPG::get_channels() const {
-	return mpeg->audio_buffer->mode == PLM_AUDIO_MODE_MONO ? 1 : 2;
+	return mpeg != nullptr ? mpeg->audio_buffer->mode == PLM_AUDIO_MODE_MONO ? 1 : 2 : 0;
 }
 
 int VideoStreamPlaybackMPG::get_mix_rate() const {
-	return plm_get_samplerate(mpeg);
+	return mpeg != nullptr ? plm_get_samplerate(mpeg) : 0;
 }
 
 void VideoStreamPlaybackMPG::set_audio_track(int p_track) {
-	plm_set_audio_stream(mpeg, p_track);
+	if (mpeg != nullptr) {
+		plm_set_audio_stream(mpeg, p_track);
+	}
 }
 
 VideoStreamPlaybackMPG::VideoStreamPlaybackMPG() {
