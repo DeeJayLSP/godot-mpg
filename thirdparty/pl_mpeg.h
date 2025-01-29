@@ -812,7 +812,9 @@ plm_samples_t *plm_audio_decode(plm_audio_t *self);
 #endif
 
 #define PLM_UNUSED(expr) (void)(expr)
-
+#ifdef _MSC_VER
+	#pragma warning(disable:4996)
+#endif
 
 // -----------------------------------------------------------------------------
 // plm (high-level interface) implementation
@@ -1387,13 +1389,12 @@ int plm_buffer_no_start_code(plm_buffer_t *self);
 int16_t plm_buffer_read_vlc(plm_buffer_t *self, const plm_vlc_t *table);
 uint16_t plm_buffer_read_vlc_uint(plm_buffer_t *self, const plm_vlc_uint_t *table);
 
-
 plm_buffer_t *plm_buffer_create_with_filename(const char *filename) {
-	// FILE *fh = fopen(filename, "rb");
-	// if (!fh) {
+	FILE *fh = fopen(filename, "rb");
+	if (!fh) {
 		return NULL;
-	// }
-	// return plm_buffer_create_with_file(fh, TRUE);
+	}
+	return plm_buffer_create_with_file(fh, TRUE);
 }
 
 plm_buffer_t *plm_buffer_create_with_file(FILE *fh, int close_when_done) {
