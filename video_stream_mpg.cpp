@@ -129,11 +129,7 @@ Ref<Texture2D> VideoStreamPlaybackMPG::get_texture() const {
 }
 
 void VideoStreamPlaybackMPG::update(double p_delta) {
-	if (file.is_null()) {
-		return;
-	}
-
-	if (!playing || paused || mpeg == nullptr) {
+	if (file.is_null() || !playing || paused || mpeg == nullptr) {
 		return;
 	}
 
@@ -144,7 +140,7 @@ void VideoStreamPlaybackMPG::update(double p_delta) {
 		int y = frame_current->height;
 		frame_data.resize((x * y) << 2);
 		yuv420_2_rgb8888(frame_data.ptrw(), frame_current->y.data, frame_current->cb.data, frame_current->cr.data, x, y, x, x >> 1, x << 2);
-		Ref<Image> img = memnew(Image(x, y, false, Image::FORMAT_RGBA8, frame_data));
+		Ref<Image> img = Image::create_from_data(x, y, false, Image::FORMAT_RGBA8, frame_data);
 		texture->update(img);
 
 		frame_pending = false;

@@ -22,5 +22,5 @@ In my own tests, this module seems to have a weight of 72 KB in a production tem
 This module uses the [PL_MPEG](https://github.com/phoboslab/pl_mpeg) library by Dominic Szablewski with a few patches.
 
 ## Known issues
-- A blank frame can be seen when looping and sometimes at the start.
+- There seems to be a lag spike when the video starts. This causes an empty frame to be seen at start and when looping.
 - Theora is still a little faster despite its bugs. Proposed optimizations in PL_MPEG might fix this in the future.
