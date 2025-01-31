@@ -19,7 +19,7 @@ Clone the repository into `modules/` under the name "mpg". Then proceed to build
 In my own tests, this module seems to have a weight of 72 KB in a production template release binary. For comparison, Theora's weight is 104 KB.
 
 ## Third-party
-This module uses the [PL_MPEG](https://github.com/phoboslab/pl_mpeg) library by Dominic Szablewski with a few patches.
+This module uses the [PL_MPEG](https://github.com/phoboslab/pl_mpeg) library by Dominic Szablewski.
 
 ## Known issues
 - There seems to be a lag spike when the video starts. This causes an empty frame to be seen at start and when looping.
