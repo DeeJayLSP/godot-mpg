@@ -20,9 +20,7 @@ void VideoStreamPlaybackMPG::dummy_yuv2rgb() {
 void VideoStreamPlaybackMPG::load_callback(plm_buffer_t *buf, void *user) {
 	Ref<FileAccess> fa = *(Ref<FileAccess> *)user;
 
-	if (buf->discard_read_bytes) {
-		plm_buffer_discard_read_bytes(buf);
-	}
+	plm_buffer_discard_read_bytes(buf);
 
 	uint64_t bytes_available = buf->capacity - buf->length;
 	uint64_t bytes_read = fa->get_buffer(buf->bytes + buf->length, bytes_available);
@@ -54,7 +52,6 @@ void VideoStreamPlaybackMPG::set_file(const String &p_file) {
 	ERR_FAIL_COND_MSG(file.is_null(), "Cannot open file: " + p_file);
 
 	plm_buffer_t *buffer = plm_buffer_create_with_capacity(PLM_BUFFER_DEFAULT_SIZE);
-	buffer->total_size = file->get_length();
 	plm_buffer_set_load_callback(buffer, load_callback, &file);
 	mpeg = plm_create_with_buffer(buffer, TRUE);
 
@@ -133,9 +130,14 @@ void VideoStreamPlaybackMPG::update(double p_delta) {
 		return;
 	}
 
+	if (plm_has_ended(mpeg)) {
+		stop();
+		return;
+	}
+
 	plm_decode(mpeg, p_delta);
 
-	if (frame_pending) { // Write frame to texture
+	if (frame_pending) {
 		int x = frame_current->width;
 		int y = frame_current->height;
 		frame_data.resize((x * y) << 2);
@@ -144,10 +146,6 @@ void VideoStreamPlaybackMPG::update(double p_delta) {
 		texture->update(img);
 
 		frame_pending = false;
-	}
-
-	if (plm_has_ended(mpeg)) {
-		stop();
 	}
 }
 
