@@ -118,7 +118,13 @@ double VideoStreamPlaybackMPG::get_playback_position() const {
 }
 
 void VideoStreamPlaybackMPG::seek(double p_time) {
-	WARN_PRINT_ONCE("Seeking in MPG videos is not implemented yet (it's only supported for GDExtension-provided video streams).");
+	if (mpeg != nullptr) {
+		if (p_time != 0.0) {
+			WARN_PRINT_ONCE("VideoStreamMPG only supports seeking to 0.0.");
+		}
+		file->seek(0);
+		plm_rewind(mpeg);
+	}
 }
 
 Ref<Texture2D> VideoStreamPlaybackMPG::get_texture() const {
