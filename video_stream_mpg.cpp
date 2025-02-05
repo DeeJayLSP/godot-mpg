@@ -11,12 +11,6 @@
 
 #include "thirdparty/misc/yuv2rgb.h"
 
-void VideoStreamPlaybackMPG::dummy_yuv2rgb() {
-	// MPEG-1 only supports 4:2:0, these are here to prevent werror from yelling
-	yuv444_2_rgb8888(nullptr, nullptr, nullptr, nullptr, 0, 0, 0, 0, 0);
-	yuv422_2_rgb8888(nullptr, nullptr, nullptr, nullptr, 0, 0, 0, 0, 0);
-}
-
 void VideoStreamPlaybackMPG::load_callback(plm_buffer_t *buf, void *user) {
 	Ref<FileAccess> fa = *(Ref<FileAccess> *)user;
 
@@ -29,6 +23,16 @@ void VideoStreamPlaybackMPG::load_callback(plm_buffer_t *buf, void *user) {
 	if (bytes_read == 0) {
 		buf->has_ended = TRUE;
 	}
+}
+
+void VideoStreamPlaybackMPG::seek_callback(plm_buffer_t *buf, size_t pos, void *user) {
+	Ref<FileAccess> fa = *(Ref<FileAccess> *)user;
+	fa->seek(pos);
+}
+
+size_t VideoStreamPlaybackMPG::tell_callback(plm_buffer_t *buf, void *user) {
+	Ref<FileAccess> fa = *(Ref<FileAccess> *)user;
+	return fa->get_position();
 }
 
 void VideoStreamPlaybackMPG::video_callback(plm_t *self, plm_frame_t *frame, void *user) {
@@ -51,8 +55,7 @@ void VideoStreamPlaybackMPG::set_file(const String &p_file) {
 	file = FileAccess::open(p_file, FileAccess::READ);
 	ERR_FAIL_COND_MSG(file.is_null(), "Cannot open file: " + p_file);
 
-	plm_buffer_t *buffer = plm_buffer_create_with_capacity(PLM_BUFFER_DEFAULT_SIZE);
-	plm_buffer_set_load_callback(buffer, load_callback, &file);
+	plm_buffer_t *buffer = plm_buffer_create_with_callbacks(load_callback, seek_callback, tell_callback, file->get_length(), &file);
 	mpeg = plm_create_with_buffer(buffer, TRUE);
 
 	plm_set_video_decode_callback(mpeg, video_callback, this);
@@ -119,11 +122,7 @@ double VideoStreamPlaybackMPG::get_playback_position() const {
 
 void VideoStreamPlaybackMPG::seek(double p_time) {
 	if (mpeg != nullptr) {
-		if (p_time != 0.0) {
-			WARN_PRINT_ONCE("VideoStreamMPG only supports seeking to 0.0.");
-		}
-		file->seek(0);
-		plm_rewind(mpeg);
+		seek_pos = p_time;
 	}
 }
 
@@ -141,7 +140,12 @@ void VideoStreamPlaybackMPG::update(double p_delta) {
 		return;
 	}
 
-	plm_decode(mpeg, p_delta);
+	if (seek_pos != -1.0) {
+		plm_seek(mpeg, seek_pos, FALSE);
+		seek_pos = -1.0;
+	} else {
+		plm_decode(mpeg, p_delta);
+	}
 
 	if (frame_pending) {
 		int x = frame_current->width;
@@ -171,6 +175,8 @@ void VideoStreamPlaybackMPG::set_audio_track(int p_track) {
 
 VideoStreamPlaybackMPG::VideoStreamPlaybackMPG() {
 	texture.instantiate();
+	PLM_UNUSED(yuv444_2_rgb8888);
+	PLM_UNUSED(yuv422_2_rgb8888);
 }
 
 VideoStreamPlaybackMPG::~VideoStreamPlaybackMPG() {

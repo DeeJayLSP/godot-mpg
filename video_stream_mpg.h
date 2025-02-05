@@ -15,15 +15,18 @@ class VideoStreamPlaybackMPG : public VideoStreamPlayback {
 	plm_t *mpeg = nullptr;
 
 	Ref<FileAccess> file;
+	LocalVector<uint8_t> file_buffer;
 	String file_name;
 	Ref<ImageTexture> texture;
 	Vector<uint8_t> frame_data; // Image creation has a big overhead converting from LocalVector
 
 	plm_frame_t *frame_current = nullptr;
 	bool frame_pending = false;
+	double seek_pos = -1.0;
 
-	static void dummy_yuv2rgb();
 	static void load_callback(plm_buffer_t *buf, void *user);
+	static void seek_callback(plm_buffer_t *buf, size_t pos, void *user);
+	static size_t tell_callback(plm_buffer_t *buf, void *user);
 	static void video_callback(plm_t *self, plm_frame_t *frame, void *user);
 	static void audio_callback(plm_t *self, plm_samples_t *samples, void *user);
 
