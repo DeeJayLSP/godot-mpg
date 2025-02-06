@@ -24,3 +24,4 @@ This module uses the [PL_MPEG](https://github.com/phoboslab/pl_mpeg) library by 
 ## Known issues
 - There seems to be a lag spike when the video starts. This causes an empty frame to be seen at start and when looping.
 - Theora is still a little faster despite its bugs. Proposed optimizations in PL_MPEG might fix this in the future.
+- Due to slow decoding, seeking is done through the imprecise way.
