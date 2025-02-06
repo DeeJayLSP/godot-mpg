@@ -15,7 +15,6 @@ class VideoStreamPlaybackMPG : public VideoStreamPlayback {
 	plm_t *mpeg = nullptr;
 
 	Ref<FileAccess> file;
-	LocalVector<uint8_t> file_buffer;
 	String file_name;
 	Ref<ImageTexture> texture;
 	Vector<uint8_t> frame_data; // Image creation has a big overhead converting from LocalVector
