@@ -1,4 +1,5 @@
 #define PL_MPEG_IMPLEMENTATION
+#define PLM_NO_STDIO
 #define PLM_MALLOC(sz) memalloc(sz)
 #define PLM_REALLOC(p, sz) memrealloc(p, sz)
 #define PLM_FREE(p) memfree(p)
