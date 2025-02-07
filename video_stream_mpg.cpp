@@ -122,9 +122,7 @@ double VideoStreamPlaybackMPG::get_playback_position() const {
 }
 
 void VideoStreamPlaybackMPG::seek(double p_time) {
-	if (mpeg != nullptr) {
-		seek_pos = p_time;
-	}
+	seek_pos = p_time;
 }
 
 Ref<Texture2D> VideoStreamPlaybackMPG::get_texture() const {
