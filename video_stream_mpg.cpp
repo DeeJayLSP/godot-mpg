@@ -144,8 +144,10 @@ void VideoStreamPlaybackMPG::update(double p_delta) {
 		seek_pos = -1.0;
 	} else if (p_delta == 0.0) { // Initialization update
 		frame_current = plm_decode_video(mpeg);
-		frame_pending = true;
-		mpeg->time = 0.0;	
+		if (frame_current) {
+			frame_pending = true;
+			mpeg->time = 0.0;
+		}
 	} else {
 		plm_decode(mpeg, p_delta);
 	}
