@@ -4,6 +4,10 @@
 #define PLM_REALLOC(p, sz) memrealloc(p, sz)
 #define PLM_FREE(p) memfree(p)
 
+#ifdef _MSC_VER
+#pragma warning(disable : 4551)
+#endif
+
 #include "video_stream_mpg.h"
 
 #include "core/config/project_settings.h"
